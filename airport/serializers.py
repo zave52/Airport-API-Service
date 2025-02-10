@@ -25,7 +25,8 @@ class AirplaneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Airplane
         fields = (
-            "id", "name", "rows", "seats_in_row", "capacity", "airplane_type", "image"
+            "id", "name", "rows", "seats_in_row", "capacity", "airplane_type",
+            "image"
         )
 
 
@@ -117,6 +118,18 @@ class FlightListSerializer(FlightSerializer):
         fields = ("id", "route", "departure_time")
 
 
+class FlightSmallListSerializer(FlightSerializer):
+    route = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Flight
+        fields = ("id", "route", "departure_time")
+
+    @staticmethod
+    def get_route(obj: Flight) -> str:
+        return f"{obj.route.source.closest_big_city}-{obj.route.destination.closest_big_city}"
+
+
 class FlightRetrieveSerializer(FlightSerializer):
     route = RouteListSerializer(many=False, read_only=True)
     airplane = AirplaneListSerializer(many=False, read_only=True)
@@ -138,8 +151,9 @@ class TicketSerializer(serializers.ModelSerializer):
         )
         return data
 
+
 class TicketListSerializer(TicketSerializer):
-    flight = FlightListSerializer(read_only=True)
+    flight = FlightSmallListSerializer(read_only=True)
 
 
 class OrderSerializer(serializers.ModelSerializer):
