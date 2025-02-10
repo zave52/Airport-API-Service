@@ -131,3 +131,8 @@ class RouteViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return RouteRetrieveSerializer
         return self.serializer_class
+
+
+class CrewViewSet(viewsets.ModelViewSet):
+    queryset = Crew.objects.all()
+    serializer_class = CrewSerializer
