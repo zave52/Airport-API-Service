@@ -172,5 +172,5 @@ class OrderSerializer(serializers.ModelSerializer):
             return order
 
 
-class OrderListSerializer(OrderSerializer):
+class OrderListRetrieveSerializer(OrderSerializer):
     tickets = TicketListSerializer(many=True, read_only=True)
