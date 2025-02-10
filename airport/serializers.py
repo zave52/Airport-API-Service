@@ -102,7 +102,7 @@ class FlightSerializer(serializers.ModelSerializer):
     def validate(self, attrs: dict) -> dict:
         data = super().validate(attrs)
         Flight.validate_departure_and_arrival_time(
-            attrs["destination_time"],
+            attrs["departure_time"],
             attrs["arrival_time"],
             ValidationError
         )
@@ -118,7 +118,7 @@ class FlightListSerializer(FlightSerializer):
 
 
 class FlightRetrieveSerializer(FlightSerializer):
-    route = RouteSerializer(many=False, read_only=True)
+    route = RouteListSerializer(many=False, read_only=True)
     airplane = AirplaneListSerializer(many=False, read_only=True)
     crews = SlugRelatedField(many=True, read_only=True, slug_field="full_name")
 
