@@ -118,7 +118,7 @@ class FlightListSerializer(FlightSerializer):
 class FlightRetrieveSerializer(FlightSerializer):
     route = RouteSerializer(many=False, read_only=True)
     airplane = AirplaneListSerializer(many=False, read_only=True)
-    crews = SlugRelatedField(many=True, slug_field="full_name")
+    crews = SlugRelatedField(many=True, read_only=True, slug_field="full_name")
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -138,7 +138,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = SlugRelatedField(many=False, slug_field="email")
+    user = SlugRelatedField(many=False, read_only=True, slug_field="email")
     tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
 
     class Meta:
