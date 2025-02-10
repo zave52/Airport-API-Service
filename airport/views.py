@@ -84,7 +84,7 @@ class AirplaneViewSet(
     @action(
         methods=("post",),
         detail=True,
-        permission_classes=IsAdminUser,
+        permission_classes=(IsAdminUser,),
         url_path="upload-image"
     )
     def upload_image(
