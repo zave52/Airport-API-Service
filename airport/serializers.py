@@ -140,12 +140,11 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = SlugRelatedField(many=False, read_only=True, slug_field="email")
     tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
 
     class Meta:
         model = Order
-        fields = ("id", "created_time", "user", "tickets")
+        fields = ("id", "created_time", "tickets")
 
     def create(self, validated_data: dict) -> Order:
         with transaction.atomic():
