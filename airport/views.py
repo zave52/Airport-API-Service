@@ -129,7 +129,10 @@ class RouteViewSet(
         if destination:
             queryset = queryset.filter(destination__name__icontains=destination)
 
-        return queryset.distinct()
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related("source", "destination")
+
+        return queryset
 
     def get_serializer_class(self) -> type(serializers.ModelSerializer):
         if self.action == "list":
