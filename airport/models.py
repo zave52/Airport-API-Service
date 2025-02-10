@@ -205,7 +205,7 @@ class Ticket(models.Model):
             (row, "row", "rows"),
             (seat, "seat", "seats_in_row")
         ):
-            count_attrs = getattr(airplane, airplane_attr_name),
+            count_attrs = getattr(airplane, airplane_attr_name)
             if not (1 <= ticket_attr_value <= count_attrs):
                 raise error_to_raise(
                     {
