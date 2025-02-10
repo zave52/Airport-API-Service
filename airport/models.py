@@ -1,8 +1,13 @@
+import pathlib
+import uuid
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+from django.utils.text import slugify
 
 
 class AirplaneType(models.Model):
@@ -10,6 +15,15 @@ class AirplaneType(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+def airplane_image_path(instance: "Airplane", filename: str) -> pathlib.Path:
+    filename = (
+        f"{slugify(instance.name)}-{uuid.uuid4()}" + pathlib.Path(
+        filename
+    ).suffix
+    )
+    return pathlib.Path("upload/airplanes/") / pathlib.Path(filename)
 
 
 class Airplane(models.Model):
@@ -21,6 +35,7 @@ class Airplane(models.Model):
         on_delete=models.CASCADE,
         related_name="airplanes"
     )
+    image = models.ImageField(null=True, upload_to=airplane_image_path)
 
     @property
     def capacity(self) -> int:
@@ -51,13 +66,33 @@ class Route(models.Model):
     )
     distance = models.IntegerField(validators=(MinValueValidator(1),))
 
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=~models.Q(source=models.F("destination")),
-                name="prevent_same_source_and_destination"
-            )
-        ]
+    @staticmethod
+    def validate_source_and_destination(
+        source: Airport,
+        destination: Airport,
+        error_to_raise: type(Exception)
+    ) -> None:
+        if source is None or destination is None:
+            raise error_to_raise("Both source and destination must exist.")
+        if source.id == destination.id:
+            raise error_to_raise("Source and destination cannot be the same.")
+
+    def clean(self) -> None:
+        Route.validate_source_and_destination(
+            self.source,
+            self.destination,
+            ValidationError
+        )
+
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str = None,
+        update_fields: list[str] = None,
+    ):
+        self.full_clean()
+        return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self) -> str:
         return f"{self.source}-{self.destination}"
@@ -67,8 +102,12 @@ class Crew(models.Model):
     first_name = models.CharField(max_length=63)
     last_name = models.CharField(max_length=63)
 
-    def __str__(self) -> str:
+    @property
+    def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+    def __str__(self) -> str:
+        return self.full_name
 
 
 class Flight(models.Model):
@@ -86,13 +125,33 @@ class Flight(models.Model):
     arrival_time = models.DateTimeField()
     crews = models.ManyToManyField(Crew, related_name="flights", blank=True)
 
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=models.Q(departure_time__lt=models.F("arrival_time")),
-                name="check_departure_before_arrival"
-            )
-        ]
+    @staticmethod
+    def validate_departure_and_arrival_time(
+        departure: datetime,
+        arrival: datetime,
+        error_to_raise: type(Exception)
+    ) -> None:
+        if departure >= arrival:
+            raise error_to_raise("Departure time must be before arrival time.")
+
+    def clean(self) -> None:
+        Flight.validate_departure_and_arrival_time(
+            self.departure_time,
+            self.arrival_time,
+            ValidationError
+        )
+
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: str = None,
+        update_fields: list[str] = None,
+    ) -> None:
+        self.full_clean()
+        return super(Flight, self).save(
+            force_insert, force_update, using, update_fields
+        )
 
     def __str__(self) -> str:
         return f"{self.route} ({self.departure_time})"
