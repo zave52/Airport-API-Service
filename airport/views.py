@@ -13,7 +13,6 @@ from airport.models import (
     Crew,
     Flight,
     Order,
-    Ticket
 )
 from airport.serializers import (
     AirplaneTypeSerializer,
@@ -181,4 +180,8 @@ class FlightViewSet(
         return queryset.select_related("route").distinct()
 
     def get_serializer_class(self) -> type(serializers.ModelSerializer):
-        pass
+        if self.action == "list":
+            return FlightListSerializer
+        if self.action == "retrieve":
+            return FlightRetrieveSerializer
+        return FlightSerializer
