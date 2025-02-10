@@ -51,7 +51,7 @@ class AirplaneViewSet(
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet
 ):
-    queryset = Airplane.objects.all()
+    queryset = Airplane.objects.select_related("airplane_type")
     serializer_class = AirplaneSerializer
 
     @staticmethod
@@ -66,9 +66,6 @@ class AirplaneViewSet(
         if airplane_types:
             airplane_types = AirplaneViewSet._params_to_ints(airplane_types)
             queryset = queryset.filter(airplane_type__id__in=airplane_types)
-
-        if self.action in ("list", "retrieve"):
-            return queryset.prefetch_related("airplane_type")
 
         return queryset.distinct()
 
@@ -108,3 +105,29 @@ class AirportViewSet(
 ):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+
+
+class RouteViewSet(viewsets.ModelViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = self.queryset
+
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+
+        if source:
+            queryset.filter(source__name__icontains=source)
+
+        if destination:
+            queryset.filter(destination__name__icontains=destination)
+
+        return queryset.distinct()
+
+    def get_serializer_class(self) -> type(serializers.ModelSerializer):
+        if self.action == "list":
+            return RouteListSerializer
+        if self.action == "retrieve":
+            return RouteRetrieveSerializer
+        return self.serializer_class
