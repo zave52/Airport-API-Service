@@ -107,7 +107,13 @@ class AirportViewSet(
     serializer_class = AirportSerializer
 
 
-class RouteViewSet(viewsets.ModelViewSet):
+class RouteViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
 
@@ -118,10 +124,10 @@ class RouteViewSet(viewsets.ModelViewSet):
         destination = self.request.query_params.get("destination")
 
         if source:
-            queryset.filter(source__name__icontains=source)
+            queryset = queryset.filter(source__name__icontains=source)
 
         if destination:
-            queryset.filter(destination__name__icontains=destination)
+            queryset = queryset.filter(destination__name__icontains=destination)
 
         return queryset.distinct()
 
@@ -133,6 +139,46 @@ class RouteViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
 
-class CrewViewSet(viewsets.ModelViewSet):
+class CrewViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+
+
+class FlightViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Flight.objects.all()
+    serializer_class = FlightSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = self.queryset
+
+        route = self.request.query_params.get("route")
+
+        if route:
+            source, destination = route.split("-")
+            queryset = queryset.filter(
+                route__source__name__icontains=source,
+                route__destination__name__icontains=destination
+            )
+
+        if self.action != "list":
+            return queryset.select_related(
+                "route",
+                "airplane"
+            ).prefetch_related("crews")
+
+        return queryset.select_related("route").distinct()
+
+    def get_serializer_class(self) -> type(serializers.ModelSerializer):
+        pass
