@@ -8,6 +8,8 @@ router = routers.DefaultRouter()
 router.register("airplane_types", AirplaneTypeViewSet)
 router.register("airplanes", AirplaneViewSet)
 router.register("airports", AirportViewSet)
+router.register("routes", AirportViewSet)
+router.register("crews", AirportViewSet)
 
 urlpatterns = [
     path("", include(router.urls))
