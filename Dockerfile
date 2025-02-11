@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install -r requirements.txt --no-cache-dir \
+RUN pip install -r requirements.txt --no-cache-dir && \
     mkdir -p /vol/web/media && \
     mkdir /vol/web/static && \
     adduser \
