@@ -175,8 +175,8 @@ class FlightViewSet(
         if route:
             source, destination = route.split("-")
             queryset = queryset.filter(
-                route__source__name__icontains=source,
-                route__destination__name__icontains=destination
+                route__source__closest_big_city__icontains=source,
+                route__destination__closest_big_city__icontains=destination
             )
 
         return queryset
