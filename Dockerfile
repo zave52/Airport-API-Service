@@ -6,9 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY . .
 
-RUN pip install -r requirements.txt --no-cache-dir && \
+RUN pip install -r requirements.txt --no-cache-dir \
     mkdir -p /vol/web/media && \
     mkdir /vol/web/static && \
     adduser \
