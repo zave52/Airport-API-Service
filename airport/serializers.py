@@ -97,7 +97,8 @@ class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
         fields = (
-            "id", "route", "airplane", "departure_time", "arrival_time", "crews"
+            "id", "route", "airplane", "departure_time",
+            "arrival_time", "crews"
         )
 
     def validate(self, attrs: dict) -> dict:
@@ -127,7 +128,10 @@ class FlightSmallListSerializer(FlightSerializer):
 
     @staticmethod
     def get_route(obj: Flight) -> str:
-        return f"{obj.route.source.closest_big_city}-{obj.route.destination.closest_big_city}"
+        return (
+            f"{obj.route.source.closest_big_city}-"
+            f"{obj.route.destination.closest_big_city}"
+        )
 
 
 class FlightRetrieveSerializer(FlightSerializer):

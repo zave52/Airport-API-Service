@@ -56,7 +56,9 @@ class AirplaneViewSet(
 
     @staticmethod
     def _params_to_ints(query_string: str) -> list[int]:
-        """Converts a string of format '1,2,3' to a list of integers [1, 2, 3]"""
+        """
+        Converts a string of format '1,2,3' to a list of integers [1, 2, 3]
+        """
         return [int(str_id) for str_id in query_string.split(",")]
 
     def get_queryset(self) -> QuerySet:
@@ -124,10 +126,14 @@ class RouteViewSet(
         destination = self.request.query_params.get("destination")
 
         if source:
-            queryset = queryset.filter(source__closest_big_city__icontains=source)
+            queryset = queryset.filter(
+                source__closest_big_city__icontains=source
+            )
 
         if destination:
-            queryset = queryset.filter(destination__closest_big_city__icontains=destination)
+            queryset = queryset.filter(
+                destination__closest_big_city__icontains=destination
+            )
 
         if self.action in ("list", "retrieve"):
             queryset = queryset.select_related("source", "destination")

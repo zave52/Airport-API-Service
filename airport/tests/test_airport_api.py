@@ -150,7 +150,9 @@ class PrivateAirportApiTests(TestCase):
         response_data = res.data["results"]
 
         self.assertTrue(any(item["id"] == route1.id for item in response_data))
-        self.assertFalse(any(item["id"] == route2.id for item in response_data))
+        self.assertFalse(
+            any(item["id"] == route2.id for item in response_data)
+        )
 
     def test_filter_airplanes_by_airplane_type(self) -> None:
         airplane_type_1 = sample_airplane_type(name="Type 1")
@@ -202,7 +204,7 @@ class PrivateAirportApiTests(TestCase):
             departure_time="2024-03-01T10:00:00Z",
             arrival_time="2024-03-01T12:00:00Z"
         )
-        flight2 = Flight.objects.create(
+        Flight.objects.create(
             route=route2,
             airplane=airplane,
             departure_time="2024-03-01T10:00:00Z",
@@ -242,8 +244,6 @@ class AdminAirportApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         airplane_type = AirplaneType.objects.get(id=res.data["id"])
         self.assertEqual(airplane_type.name, payload["name"])
-
-
 
     def test_create_route(self) -> None:
         """Test creating a route."""
