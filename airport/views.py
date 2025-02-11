@@ -124,10 +124,10 @@ class RouteViewSet(
         destination = self.request.query_params.get("destination")
 
         if source:
-            queryset = queryset.filter(source__name__icontains=source)
+            queryset = queryset.filter(source__closest_big_city__icontains=source)
 
         if destination:
-            queryset = queryset.filter(destination__name__icontains=destination)
+            queryset = queryset.filter(destination__closest_big_city__icontains=destination)
 
         if self.action in ("list", "retrieve"):
             queryset = queryset.select_related("source", "destination")
