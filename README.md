@@ -140,3 +140,7 @@ docker-compose up --build
 ```
 
 5. The server will be running at `http://0.0.0.0:8000`.
+
+## Api endpoints
+
+![swagger.png](swagger.png)
